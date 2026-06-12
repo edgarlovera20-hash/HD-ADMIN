@@ -1,0 +1,6 @@
+{
+  "repository": "HD-ADMIN",
+  "ecosystem": "Heavenly Dreams",
+  "status": "bootstrap",
+  "requires": ["HD-CORE"]
+}
