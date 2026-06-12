@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id        String   @id @default(uuid())
+  fullName  String
+  email     String   @unique
+  status    String   @default("active")
+  roles     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions Json
+  scope       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditRecord {
+  id        String   @id @default(uuid())
+  actorId   String
+  action    String
+  module    String
+  severity  String
+  before    Json?
+  after     Json?
+  createdAt DateTime @default(now())
+}
+
+model FinanceRecord {
+  id          String   @id @default(uuid())
+  type        String
+  amount      Decimal
+  description String?
+  reference   String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+}
