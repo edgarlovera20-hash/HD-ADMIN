@@ -14,6 +14,21 @@ export interface HdEventEnvelope<T = unknown> {
 const MAX_EVENTS = 100;
 const eventLog: HdEventEnvelope[] = [];
 
+// HD-BRAIN subscribes to all HD-ADMIN events.
+const BRAIN_URL = process.env.BRAIN_EVENTS_URL ?? "";
+
+function forwardEvent(envelope: HdEventEnvelope): void {
+  const secret = process.env.EVENT_BUS_SECRET;
+  if (!secret || !BRAIN_URL) return;
+  fetch(BRAIN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-event-bus-secret": secret },
+    body: JSON.stringify(envelope),
+  }).catch((err: unknown) => {
+    console.warn(`[EVENT FORWARD] Failed ${envelope.eventName} → ${BRAIN_URL}:`, err);
+  });
+}
+
 export function emitEvent<T>(
   eventName: string,
   payload: T,
@@ -34,6 +49,7 @@ export function emitEvent<T>(
   eventLog.push(envelope as HdEventEnvelope);
   if (eventLog.length > MAX_EVENTS) eventLog.shift();
   console.log(`[EVENT] ${eventName} producer=${producer} correlationId=${envelope.correlationId}`);
+  forwardEvent(envelope as HdEventEnvelope);
   return envelope;
 }
 
