@@ -8,6 +8,7 @@ import healthRoutes from "./server/routes/health.js";
 import usersRoutes from "./server/routes/users.js";
 import auditRoutes from "./server/routes/auditlog.js";
 import webhooksRouter from "./server/routes/webhooks.js";
+import eventsRouter from "./server/routes/events.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -22,6 +23,7 @@ app.use("/api", healthRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/webhooks/n8n", webhooksRouter);
+app.use("/api/events", eventsRouter);
 
 if (!isDev) {
   const clientDist = path.join(__dirname, "dist/client");

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { requireAuth } from "../middleware/requireAuth.js";
 import type { AuthRequest } from "../middleware/requireAuth.js";
+import { emitEvent } from "../events/emitter.js";
 
 const router = Router();
 
@@ -50,6 +51,12 @@ router.post("/", requireAuth, (req: AuthRequest, res) => {
     };
     users.push(user);
     console.log(`[AUDIT STUB] POST /api/users id=${user.id} correlationId=${crypto.randomUUID()}`);
+    emitEvent(
+      "admin.user.created",
+      { userId: user.id, email: user.email, role: user.role },
+      "HD-ADMIN",
+      { id: req.user?.sub ?? "system", type: "user" }
+    );
     return res.status(201).json(user);
   } catch {
     return res.status(400).json({ error: "Datos inválidos" });
@@ -63,6 +70,13 @@ router.patch("/:id", requireAuth, (req: AuthRequest, res) => {
     const patch = patchSchema.parse(req.body);
     Object.assign(user, patch);
     console.log(`[AUDIT STUB] PATCH /api/users/${req.params.id} correlationId=${crypto.randomUUID()}`);
+    const roleChangedEnvelope = emitEvent(
+      "admin.user.role_changed",
+      { userId: user.id, newRole: user.role, isActive: user.isActive },
+      "HD-ADMIN",
+      { id: req.user?.sub ?? "system", type: "user" }
+    );
+    console.log(`[EVENT-BROADCAST] admin.user.role_changed — must reach all platforms within 5s correlationId=${roleChangedEnvelope.correlationId}`);
     return res.json(user);
   } catch {
     return res.status(400).json({ error: "Datos inválidos" });
