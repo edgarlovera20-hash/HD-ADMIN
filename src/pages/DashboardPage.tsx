@@ -1,4 +1,5 @@
-import { LogOut, Settings, Shield, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { LogOut, Settings, Shield, UserCheck, UserX, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -8,9 +9,40 @@ const modules = [
   { icon: Settings, label: "Configuración", description: "Ajustes del sistema", href: "#" },
 ];
 
+interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: "admin" | "manager" | "operator" | "viewer";
+  isActive: boolean;
+  createdAt: string;
+}
+
+const roleBadgeClass: Record<AdminUser["role"], string> = {
+  admin: "bg-[#0066FF]/20 text-[#60A5FA]",
+  manager: "bg-[#7C3AED]/20 text-[#A78BFA]",
+  operator: "bg-[#059669]/20 text-[#34D399]",
+  viewer: "bg-[#374151] text-[#9CA3AF]",
+};
+
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const navigate = useNavigate();
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/users", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data: AdminUser[]) => {
+        setUsers(data);
+        setLoadingUsers(false);
+      })
+      .catch(() => setLoadingUsers(false));
+  }, [token]);
 
   function handleLogout() {
     logout();
@@ -51,6 +83,7 @@ export default function DashboardPage() {
           <p className="text-[#9CA3AF] mt-1 text-sm">Panel de administración del ecosistema HD</p>
         </div>
 
+        {/* Summary cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {modules.map((mod) => (
             <a
@@ -67,7 +100,67 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        <div className="mt-8 bg-[#111827] border border-[#1F2937] rounded-xl p-6">
+        {/* User count summary */}
+        <div className="mt-6 bg-[#111827] border border-[#1F2937] rounded-xl px-6 py-4 flex items-center gap-3">
+          <Users className="w-5 h-5 text-[#0066FF]" />
+          <span className="text-[#F9FAFB] text-sm font-medium">
+            {loadingUsers ? "Cargando usuarios..." : `${users.length} usuario${users.length !== 1 ? "s" : ""} registrado${users.length !== 1 ? "s" : ""}`}
+          </span>
+        </div>
+
+        {/* Users table */}
+        <div className="mt-6 bg-[#111827] border border-[#1F2937] rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#1F2937] flex items-center gap-2">
+            <Users className="w-4 h-4 text-[#0066FF]" />
+            <h2 className="font-semibold text-[#F9FAFB]">Usuarios del sistema</h2>
+          </div>
+
+          {loadingUsers ? (
+            <div className="px-6 py-8 text-[#9CA3AF] text-sm">Cargando...</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[#1F2937]">
+                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Nombre</th>
+                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Email</th>
+                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Rol</th>
+                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((u) => (
+                    <tr key={u.id} className="border-b border-[#1F2937] last:border-0 hover:bg-[#161F33] transition-colors">
+                      <td className="px-6 py-3 text-[#F9FAFB] font-medium">{u.name}</td>
+                      <td className="px-6 py-3 text-[#9CA3AF]">{u.email}</td>
+                      <td className="px-6 py-3">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleBadgeClass[u.role]}`}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3">
+                        {u.isActive ? (
+                          <span className="inline-flex items-center gap-1 text-[#10B981] text-xs">
+                            <UserCheck className="w-3.5 h-3.5" />
+                            Activo
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[#EF4444] text-xs">
+                            <UserX className="w-3.5 h-3.5" />
+                            Inactivo
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* System status */}
+        <div className="mt-6 bg-[#111827] border border-[#1F2937] rounded-xl p-6">
           <h2 className="font-semibold text-[#F9FAFB] mb-3">Estado del sistema</h2>
           <div className="flex items-center gap-2 text-sm text-[#10B981]">
             <div className="w-2 h-2 rounded-full bg-[#10B981]" />

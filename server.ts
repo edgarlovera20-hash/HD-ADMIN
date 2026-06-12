@@ -4,6 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import authRoutes from "./server/routes/auth.js";
 import healthRoutes from "./server/routes/health.js";
+import usersRoutes from "./server/routes/users.js";
+import auditRoutes from "./server/routes/auditlog.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -14,6 +16,8 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api", healthRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/audit", auditRoutes);
 
 if (!isDev) {
   const clientDist = path.join(__dirname, "dist/client");

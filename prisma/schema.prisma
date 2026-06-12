@@ -1,48 +1,42 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
+// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model AdminUser {
-  id        String   @id @default(uuid())
-  fullName  String
-  email     String   @unique
-  status    String   @default("active")
-  roles     Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+generator client {
+  provider = "prisma-client-js"
 }
 
-model Role {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  permissions Json
-  scope       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum UserRole {
+  admin
+  manager
+  operator
+  viewer
 }
 
-model AuditRecord {
-  id        String   @id @default(uuid())
-  actorId   String
-  action    String
-  module    String
-  severity  String
-  before    Json?
-  after     Json?
-  createdAt DateTime @default(now())
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  role         UserRole  @default(viewer)
+  passwordHash String
+  isActive     Boolean   @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
-model FinanceRecord {
-  id          String   @id @default(uuid())
-  type        String
-  amount      Decimal
-  description String?
-  reference   String?
-  createdBy   String
-  createdAt   DateTime @default(now())
+model AuditLog {
+  id            String   @id @default(cuid())
+  actorId       String
+  actorType     String   @default("user")
+  platform      String   @default("HD-ADMIN")
+  action        String
+  resourceType  String
+  resourceId    String
+  correlationId String
+  severity      String   @default("info")
+  metadata      Json     @default("{}")
+  createdAt     DateTime @default(now())
 }
