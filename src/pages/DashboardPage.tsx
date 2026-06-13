@@ -1,173 +1,180 @@
-import { useEffect, useState } from "react";
-import { LogOut, Settings, Shield, UserCheck, UserX, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { DashboardShell } from "../components/layout/DashboardShell";
+import { MetricCard } from "../components/ui/MetricCard";
+import { DataTable } from "../components/ui/DataTable";
+import { PageHeader } from "../components/ui/PageHeader";
+import { StatusBadge } from "../components/ui/StatusBadge";
+import {
+  Users,
+  Activity,
+  Shield,
+  FileText,
+  AlertTriangle,
+  Server,
+} from "../design-system/icons";
 
-const modules = [
-  { icon: Users, label: "Usuarios", description: "Gestión de cuentas y accesos", href: "#" },
-  { icon: Shield, label: "Roles & Permisos", description: "Control de acceso RBAC", href: "#" },
-  { icon: Settings, label: "Configuración", description: "Ajustes del sistema", href: "#" },
+const auditRows = [
+  { user: "Edgar Lovera", action: "LOGIN", resource: "Auth", ip: "192.168.1.10", time: "hace 2 min" },
+  { user: "María González", action: "CREATE", resource: "Usuario", ip: "10.0.0.5", time: "hace 5 min" },
+  { user: "Carlos Reyes", action: "UPDATE", resource: "Rol MANAGER", ip: "10.0.0.8", time: "hace 12 min" },
+  { user: "Ana Torres", action: "DELETE", resource: "Sesión expirada", ip: "172.16.0.3", time: "hace 18 min" },
+  { user: "Sistema", action: "GRANT", resource: "Permiso users:read", ip: "127.0.0.1", time: "hace 22 min" },
+  { user: "Luis Méndez", action: "LOGIN", resource: "Auth", ip: "192.168.2.44", time: "hace 31 min" },
+  { user: "Patricia Salinas", action: "UPDATE", resource: "Configuración SMTP", ip: "10.0.0.12", time: "hace 45 min" },
+  { user: "Jorge Castillo", action: "REVOKE", resource: "Permiso finance:write", ip: "10.0.0.9", time: "hace 1 hr" },
 ];
 
-interface AdminUser {
-  id: string;
-  email: string;
-  name: string;
-  role: "admin" | "manager" | "operator" | "viewer";
-  isActive: boolean;
-  createdAt: string;
-}
+const recentUsers = [
+  { name: "Edgar Lovera", email: "edgar@heavenlydreams.mx", role: "OWNER", status: "active", lastLogin: "hace 2 min" },
+  { name: "María González", email: "maria.g@heavenlydreams.mx", role: "ADMIN", status: "active", lastLogin: "hace 5 min" },
+  { name: "Carlos Reyes", email: "carlos.r@heavenlydreams.mx", role: "MANAGER", status: "active", lastLogin: "hace 12 min" },
+  { name: "Ana Torres", email: "ana.t@heavenlydreams.mx", role: "AGENT", status: "inactive", lastLogin: "hace 2 días" },
+  { name: "Luis Méndez", email: "luis.m@heavenlydreams.mx", role: "VIEWER", status: "active", lastLogin: "hace 31 min" },
+];
 
-const roleBadgeClass: Record<AdminUser["role"], string> = {
-  admin: "bg-[#0066FF]/20 text-[#60A5FA]",
-  manager: "bg-[#7C3AED]/20 text-[#A78BFA]",
-  operator: "bg-[#059669]/20 text-[#34D399]",
-  viewer: "bg-[#374151] text-[#9CA3AF]",
-};
+const auditColumns = [
+  { key: "user", header: "Usuario" },
+  { key: "action", header: "Acción", render: (v: unknown) => (
+    <span style={{
+      display: "inline-block",
+      padding: "2px 8px",
+      borderRadius: "6px",
+      fontSize: "0.7rem",
+      fontWeight: 600,
+      letterSpacing: "0.05em",
+      backgroundColor: "rgba(0,102,255,0.15)",
+      color: "#60A5FA",
+    }}>{v as string}</span>
+  )},
+  { key: "resource", header: "Recurso" },
+  { key: "ip", header: "IP" },
+  { key: "time", header: "Tiempo" },
+];
+
+const userColumns = [
+  { key: "name", header: "Nombre" },
+  { key: "email", header: "Email", render: (v: unknown) => (
+    <span style={{ color: "#94A3B8" }}>{v as string}</span>
+  )},
+  { key: "role", header: "Rol", render: (v: unknown) => (
+    <span style={{
+      display: "inline-block",
+      padding: "2px 8px",
+      borderRadius: "6px",
+      fontSize: "0.7rem",
+      fontWeight: 600,
+      backgroundColor: "rgba(124,58,237,0.15)",
+      color: "#A78BFA",
+    }}>{v as string}</span>
+  )},
+  { key: "status", header: "Estado", render: (v: unknown) => (
+    <StatusBadge status={v as "active" | "inactive"} />
+  )},
+  { key: "lastLogin", header: "Último acceso" },
+];
 
 export default function DashboardPage() {
-  const { user, logout, token } = useAuth();
-  const navigate = useNavigate();
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
-
-  useEffect(() => {
-    if (!token) return;
-    fetch("/api/users", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((data: AdminUser[]) => {
-        setUsers(data);
-        setLoadingUsers(false);
-      })
-      .catch(() => setLoadingUsers(false));
-  }, [token]);
-
-  function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
-  }
-
   return (
-    <div className="min-h-screen bg-[#0A0F1C] text-[#F9FAFB]">
-      <header className="bg-[#111827] border-b border-[#1F2937] px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#0066FF] flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-white" style={{ fontFamily: "Poppins, sans-serif" }}>
-            HD Admin
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[#9CA3AF] text-sm">{user?.email ?? "Admin"}</span>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-[#9CA3AF] hover:text-white transition-colors text-sm"
-          >
-            <LogOut className="w-4 h-4" />
-            Salir
-          </button>
-        </div>
-      </header>
+    <DashboardShell>
+      <PageHeader
+        title="Dashboard"
+        description="Resumen ejecutivo del ecosistema HD Admin"
+      />
 
-      <main className="max-w-5xl mx-auto px-6 py-10">
-        <div className="mb-8">
-          <h1
-            className="text-2xl font-bold text-white"
-            style={{ fontFamily: "Poppins, sans-serif" }}
-          >
-            Bienvenido, {user?.name ?? "Admin"}
-          </h1>
-          <p className="text-[#9CA3AF] mt-1 text-sm">Panel de administración del ecosistema HD</p>
-        </div>
+      {/* Metric cards grid */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+        gap: "20px",
+        marginBottom: "32px",
+      }}>
+        <MetricCard
+          title="Total Usuarios"
+          value="1,284"
+          change="+12%"
+          changeType="up"
+          icon={Users}
+          description="Usuarios registrados en el sistema"
+        />
+        <MetricCard
+          title="Sesiones Activas"
+          value="47"
+          change="+3"
+          changeType="up"
+          icon={Activity}
+          description="Sesiones en este momento"
+          iconColor="#00A3FF"
+        />
+        <MetricCard
+          title="Total Roles"
+          value="8"
+          change="0"
+          changeType="neutral"
+          icon={Shield}
+          description="Roles RBAC configurados"
+          iconColor="#7C3AED"
+        />
+        <MetricCard
+          title="Eventos de Auditoría Hoy"
+          value="2,341"
+          change="+156"
+          changeType="up"
+          icon={FileText}
+          description="Registros generados hoy"
+          iconColor="#F59E0B"
+        />
+        <MetricCard
+          title="Logins Fallidos"
+          value="3"
+          change="-2"
+          changeType="down"
+          icon={AlertTriangle}
+          description="Intentos fallidos hoy"
+          iconColor="#EF4444"
+        />
+        <MetricCard
+          title="Salud del Sistema"
+          value="99.8%"
+          change="+0.1%"
+          changeType="up"
+          icon={Server}
+          description="Uptime últimas 24 horas"
+          iconColor="#10B981"
+        />
+      </div>
 
-        {/* Summary cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {modules.map((mod) => (
-            <a
-              key={mod.label}
-              href={mod.href}
-              className="group bg-[#111827] border border-[#1F2937] rounded-xl p-6 hover:border-[#0066FF] hover:bg-[#161F33] transition-all"
-            >
-              <div className="w-10 h-10 rounded-lg bg-[#0066FF]/10 flex items-center justify-center mb-4 group-hover:bg-[#0066FF]/20 transition-colors">
-                <mod.icon className="w-5 h-5 text-[#0066FF]" />
-              </div>
-              <h3 className="font-semibold text-[#F9FAFB] mb-1">{mod.label}</h3>
-              <p className="text-[#9CA3AF] text-sm">{mod.description}</p>
-            </a>
-          ))}
-        </div>
+      {/* Recent Audit Activity */}
+      <div style={{ marginBottom: "32px" }}>
+        <h2 style={{
+          fontSize: "1.1rem",
+          fontWeight: 600,
+          color: "#FFFFFF",
+          fontFamily: "Poppins, sans-serif",
+          marginBottom: "16px",
+        }}>
+          Actividad Reciente
+        </h2>
+        <DataTable
+          columns={auditColumns as Parameters<typeof DataTable>[0]["columns"]}
+          data={auditRows as Record<string, unknown>[]}
+        />
+      </div>
 
-        {/* User count summary */}
-        <div className="mt-6 bg-[#111827] border border-[#1F2937] rounded-xl px-6 py-4 flex items-center gap-3">
-          <Users className="w-5 h-5 text-[#0066FF]" />
-          <span className="text-[#F9FAFB] text-sm font-medium">
-            {loadingUsers ? "Cargando usuarios..." : `${users.length} usuario${users.length !== 1 ? "s" : ""} registrado${users.length !== 1 ? "s" : ""}`}
-          </span>
-        </div>
-
-        {/* Users table */}
-        <div className="mt-6 bg-[#111827] border border-[#1F2937] rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#1F2937] flex items-center gap-2">
-            <Users className="w-4 h-4 text-[#0066FF]" />
-            <h2 className="font-semibold text-[#F9FAFB]">Usuarios del sistema</h2>
-          </div>
-
-          {loadingUsers ? (
-            <div className="px-6 py-8 text-[#9CA3AF] text-sm">Cargando...</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[#1F2937]">
-                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Nombre</th>
-                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Email</th>
-                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Rol</th>
-                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => (
-                    <tr key={u.id} className="border-b border-[#1F2937] last:border-0 hover:bg-[#161F33] transition-colors">
-                      <td className="px-6 py-3 text-[#F9FAFB] font-medium">{u.name}</td>
-                      <td className="px-6 py-3 text-[#9CA3AF]">{u.email}</td>
-                      <td className="px-6 py-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleBadgeClass[u.role]}`}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3">
-                        {u.isActive ? (
-                          <span className="inline-flex items-center gap-1 text-[#10B981] text-xs">
-                            <UserCheck className="w-3.5 h-3.5" />
-                            Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[#EF4444] text-xs">
-                            <UserX className="w-3.5 h-3.5" />
-                            Inactivo
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
-        {/* System status */}
-        <div className="mt-6 bg-[#111827] border border-[#1F2937] rounded-xl p-6">
-          <h2 className="font-semibold text-[#F9FAFB] mb-3">Estado del sistema</h2>
-          <div className="flex items-center gap-2 text-sm text-[#10B981]">
-            <div className="w-2 h-2 rounded-full bg-[#10B981]" />
-            Todos los servicios operativos
-          </div>
-        </div>
-      </main>
-    </div>
+      {/* Recent Users */}
+      <div>
+        <h2 style={{
+          fontSize: "1.1rem",
+          fontWeight: 600,
+          color: "#FFFFFF",
+          fontFamily: "Poppins, sans-serif",
+          marginBottom: "16px",
+        }}>
+          Usuarios Recientes
+        </h2>
+        <DataTable
+          columns={userColumns as Parameters<typeof DataTable>[0]["columns"]}
+          data={recentUsers as Record<string, unknown>[]}
+        />
+      </div>
+    </DashboardShell>
   );
 }

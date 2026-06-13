@@ -3,6 +3,10 @@ import { useAuth } from "./hooks/useAuth";
 import DashboardPage from "./pages/DashboardPage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import UsersPage from "./pages/UsersPage";
+import RolesPage from "./pages/RolesPage";
+import AuditPage from "./pages/AuditPage";
+import SettingsPage from "./pages/SettingsPage";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { token } = useAuth();
@@ -13,8 +17,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route
-        path="/"
+        path="/dashboard"
         element={
           <RequireAuth>
             <DashboardPage />
@@ -22,10 +27,34 @@ export default function App() {
         }
       />
       <Route
-        path="/dashboard"
+        path="/users"
         element={
           <RequireAuth>
-            <DashboardPage />
+            <UsersPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/roles"
+        element={
+          <RequireAuth>
+            <RolesPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/audit"
+        element={
+          <RequireAuth>
+            <AuditPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <RequireAuth>
+            <SettingsPage />
           </RequireAuth>
         }
       />
