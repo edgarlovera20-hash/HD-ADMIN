@@ -222,7 +222,7 @@ export default function RolesPage() {
               paddingTop: "12px",
               borderTop: "1px solid rgba(255,255,255,0.06)",
             }}>
-              <div style={{ display: "flex", align: "center", gap: "6px" }}>
+              <div style={{ display: "flex", gap: "6px" }}>
                 <Users size={14} style={{ color: "#64748B", marginTop: "1px" }} />
                 <div>
                   <p style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#FFFFFF", fontFamily: "Poppins, sans-serif" }}>

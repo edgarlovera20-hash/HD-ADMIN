@@ -187,18 +187,10 @@ export default function SettingsPage() {
       >
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "0 24px" }}>
           <Field label="Nombre de la empresa" hint="Aparece en reportes, emails y cabeceras">
-            <input
-              type="text"
-              defaultValue="Heavenly Dreams"
-              style={inputStyle}
-            />
+            <input type="text" defaultValue="Heavenly Dreams" style={inputStyle} />
           </Field>
           <Field label="Dominio principal" hint="Dominio base para links generados">
-            <input
-              type="text"
-              defaultValue="heavenlydreams.com.mx"
-              style={inputStyle}
-            />
+            <input type="text" defaultValue="heavenlydreams.com.mx" style={inputStyle} />
           </Field>
           <Field label="Zona horaria" hint="Usada para timestamps y reportes">
             <select defaultValue="America/Mexico_City" style={selectStyle}>
@@ -234,43 +226,18 @@ export default function SettingsPage() {
       >
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "0 24px", marginBottom: "20px" }}>
           <Field label="Tiempo de sesión (minutos)" hint="Sesión inactiva cerrará automáticamente">
-            <input
-              type="number"
-              defaultValue={60}
-              min={5}
-              max={480}
-              style={inputStyle}
-            />
+            <input type="number" defaultValue={60} min={5} max={480} style={inputStyle} />
           </Field>
           <Field label="Mínimo de caracteres en contraseña" hint="Longitud mínima para contraseñas nuevas">
-            <input
-              type="number"
-              defaultValue={12}
-              min={8}
-              max={128}
-              style={inputStyle}
-            />
+            <input type="number" defaultValue={12} min={8} max={128} style={inputStyle} />
           </Field>
           <Field label="Intentos fallidos antes de bloqueo" hint="0 = sin límite (no recomendado)">
-            <input
-              type="number"
-              defaultValue={5}
-              min={0}
-              max={20}
-              style={inputStyle}
-            />
+            <input type="number" defaultValue={5} min={0} max={20} style={inputStyle} />
           </Field>
           <Field label="Duración del bloqueo (minutos)" hint="Tiempo bloqueado tras superar intentos">
-            <input
-              type="number"
-              defaultValue={15}
-              min={1}
-              max={1440}
-              style={inputStyle}
-            />
+            <input type="number" defaultValue={15} min={1} max={1440} style={inputStyle} />
           </Field>
         </div>
-
         <h3 style={{ margin: "0 0 12px", fontSize: "0.875rem", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.06em" }}>
           Políticas
         </h3>
@@ -290,55 +257,29 @@ export default function SettingsPage() {
       >
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "0 24px" }}>
           <Field label="Servidor SMTP" hint="Host del servidor de correo saliente">
-            <input
-              type="text"
-              defaultValue="smtp.gmail.com"
-              style={inputStyle}
-            />
+            <input type="text" defaultValue="smtp.gmail.com" style={inputStyle} />
           </Field>
           <Field label="Puerto SMTP" hint="587 (TLS) o 465 (SSL)">
-            <input
-              type="number"
-              defaultValue={587}
-              style={inputStyle}
-            />
+            <input type="number" defaultValue={587} style={inputStyle} />
           </Field>
           <Field label="Usuario SMTP" hint="Email o usuario de autenticación">
-            <input
-              type="email"
-              defaultValue="noreply@heavenlydreams.com.mx"
-              style={inputStyle}
-            />
+            <input type="email" defaultValue="noreply@heavenlydreams.com.mx" style={inputStyle} />
           </Field>
           <Field label="Contraseña SMTP" hint="Almacenada cifrada con SECRETS_ENCRYPTION_KEY">
-            <input
-              type="password"
-              defaultValue="••••••••••••"
-              style={inputStyle}
-            />
+            <input type="password" defaultValue="••••••••••••" style={inputStyle} />
           </Field>
           <Field label="Nombre del remitente" hint="Nombre visible en el campo From">
-            <input
-              type="text"
-              defaultValue="Heavenly Dreams Admin"
-              style={inputStyle}
-            />
+            <input type="text" defaultValue="Heavenly Dreams Admin" style={inputStyle} />
           </Field>
           <Field label="Email de respuesta (Reply-To)" hint="A quién responden los destinatarios">
-            <input
-              type="email"
-              defaultValue="soporte@heavenlydreams.com.mx"
-              style={inputStyle}
-            />
+            <input type="email" defaultValue="soporte@heavenlydreams.com.mx" style={inputStyle} />
           </Field>
         </div>
-
         <div style={{ marginTop: "8px" }}>
           <Toggle label="Cifrado TLS" description="Usar cifrado TLS/STARTTLS para el envío de emails" enabled={true} />
           <Toggle label="Notificaciones de login nuevo" description="Enviar email al detectar inicio de sesión desde IP desconocida" enabled={true} />
           <Toggle label="Alertas de auditoría críticas" description="Recibir email inmediato cuando se registre un evento de severidad crítica" enabled={true} />
         </div>
-
         <div style={{ marginTop: "16px" }}>
           <button style={{
             display: "inline-flex",
