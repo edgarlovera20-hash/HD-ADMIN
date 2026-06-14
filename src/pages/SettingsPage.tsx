@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import { DashboardShell } from "../components/layout/DashboardShell";
 import { PageHeader } from "../components/ui/PageHeader";
 import { Globe, Lock, Mail, Save } from "../design-system/icons";
@@ -5,7 +6,7 @@ import { Globe, Lock, Mail, Save } from "../design-system/icons";
 interface SettingsSectionProps {
   title: string;
   description: string;
-  icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  icon: LucideIcon;
   iconColor?: string;
   children: React.ReactNode;
 }
