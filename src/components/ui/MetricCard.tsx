@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react";
 import { TrendingUp, TrendingDown } from "../../design-system/icons";
 
 interface MetricCardProps {
@@ -5,7 +6,7 @@ interface MetricCardProps {
   value: string;
   change: string;
   changeType: "up" | "down" | "neutral";
-  icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  icon: LucideIcon;
   description?: string;
   iconColor?: string;
 }

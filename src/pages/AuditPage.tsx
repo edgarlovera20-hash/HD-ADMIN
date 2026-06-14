@@ -104,7 +104,7 @@ export default function AuditPage() {
       render: (_: unknown, row: Record<string, unknown>) => (
         <div>
           <p style={{ margin: 0, fontSize: "0.85rem", color: "#E2E8F0" }}>{row.resource as string}</p>
-          {row.resourceId && (
+          {!!row.resourceId && (
             <p style={{ margin: 0, fontSize: "0.7rem", color: "#64748B", fontFamily: "monospace" }}>
               {row.resourceId as string}
             </p>
